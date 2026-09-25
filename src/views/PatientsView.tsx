@@ -46,19 +46,7 @@ export const PatientsView = defineComponent({
           <div class="patients-header-card">
             <div class="patients-header-top">
               <div class="patients-title-group">
-                <div class="patients-badge">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                    <circle cx="8.5" cy="7" r="4" />
-                    <line x1="20" y1="8" x2="20" y2="14" />
-                    <line x1="23" y1="11" x2="17" y2="11" />
-                  </svg>
-                  <span>Espace Clinique Hospitalier</span>
-                </div>
                 <h1 class="patients-main-title">Liste des Patients</h1>
-                <p class="patients-subtitle">
-                  Consultation des admissions hospitalières par service médical.
-                </p>
               </div>
 
               <div class="patients-stats-card">
