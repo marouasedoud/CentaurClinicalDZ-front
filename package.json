@@ -1,0 +1,23 @@
+{
+  "name": "centaur-clinical-front",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vue 3 + TypeScript JSX Frontend for Centaur Clinical Authentication System",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "vue": "^3.4.31",
+    "vue-router": "^4.4.0"
+  },
+  "devDependencies": {
+    "@vue/babel-plugin-jsx": "^1.2.2",
+    "@vue/cli-plugin-babel": "~5.0.8",
+    "@vue/cli-plugin-typescript": "~5.0.8",
+    "@vue/cli-service": "~5.0.8",
+    "typescript": "~5.3.3"
+  }
+}

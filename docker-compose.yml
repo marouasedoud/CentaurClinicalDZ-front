@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VUE_APP_API_URL: ${VUE_APP_API_URL:-http://localhost:5000}
+    container_name: centaur_clinical_front
+    restart: unless-stopped
+    ports:
+      - "${FRONT_PORT:-8080}:80"
+    environment:
+      VUE_APP_API_URL: ${VUE_APP_API_URL:-http://localhost:5000}
