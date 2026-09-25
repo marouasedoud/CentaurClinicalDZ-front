@@ -20,7 +20,7 @@ const app = createApp(App);
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    ...defaultAuthRoutes, // Includes /login and /welcome
+    ...defaultAuthRoutes, // Includes /login and /patients
     {
       path: '/dashboard',
       component: () => import('./views/DashboardView'),
@@ -34,7 +34,7 @@ const auth = createCentaurAuth({
   apiUrl: process.env.VUE_APP_API_URL || 'http://localhost:5000',
   router, // Enables automatic navigation guard protection
   loginRoutePath: '/login',
-  defaultRedirectPath: '/welcome',
+  defaultRedirectPath: '/patients',
 });
 
 // 3. Register plugins
@@ -82,7 +82,7 @@ export default defineComponent({
 
 Route protection is managed automatically by the navigation guard:
 - `meta: { requiresAuth: true }` — Access denied if not authenticated; redirects to `/login` while preserving the intended URL in query parameter `?redirect=...`.
-- `meta: { guestOnly: true }` — Access restricted to unauthenticated guests. If already logged in, automatically redirects to `/welcome`.
+- `meta: { guestOnly: true }` — Access restricted to unauthenticated guests. If already logged in, automatically redirects to `/patients`.
 
 ---
 

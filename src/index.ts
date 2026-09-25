@@ -24,7 +24,6 @@ export { defaultAuthRoutes } from './router/routes';
 export { LoginForm } from './components/LoginForm';
 export { Navbar } from './components/Navbar';
 export { LoginView } from './views/LoginView';
-export { WelcomeView } from './views/WelcomeView';
 export { PatientsView } from './views/PatientsView';
 
 // TypeScript Types

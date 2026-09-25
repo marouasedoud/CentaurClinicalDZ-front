@@ -29,9 +29,4 @@ export const defaultAuthRoutes: RouteRecordRaw[] = [
       title: 'Centaur Clinical - Liste des Patients',
     },
   },
-  // Legacy /welcome route redirected to /patients
-  {
-    path: '/welcome',
-    redirect: '/patients',
-  },
 ];

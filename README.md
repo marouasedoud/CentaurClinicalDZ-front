@@ -50,7 +50,6 @@ CentaurClinicalDZ-front/
 │   ├── views/
 │   │   ├── LoginView.tsx      # JSX Login page view
 │   │   ├── PatientsView.tsx   # JSX Patients List page view (4 tabs: Général, Urgence, etc.)
-│   │   └── WelcomeView.tsx    # Re-export / alias of PatientsView
 │   ├── router/
 │   │   ├── guard.ts           # Centralized navigation guard (createAuthGuard)
 │   │   └── routes.ts          # Standard auth route definitions (/login, /patients)
