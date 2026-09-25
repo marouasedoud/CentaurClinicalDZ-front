@@ -16,7 +16,7 @@ export interface AuthGuardOptions {
 export function createAuthGuard(options: AuthGuardOptions = {}) {
   const authService = options.authService || defaultAuthService;
   const loginPath = options.loginPath || '/login';
-  const defaultRedirectPath = options.defaultRedirectPath || '/welcome';
+  const defaultRedirectPath = options.defaultRedirectPath || '/patients';
 
   return (
     to: RouteLocationNormalized,

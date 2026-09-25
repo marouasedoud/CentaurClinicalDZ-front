@@ -9,7 +9,7 @@ export const LoginView = defineComponent({
     const route = useRoute();
 
     const handleLoginSuccess = (): void => {
-      const redirectTarget = (route.query.redirect as string) || '/welcome';
+      const redirectTarget = (route.query.redirect as string) || '/patients';
       router.push(redirectTarget);
     };
 

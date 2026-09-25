@@ -9,7 +9,7 @@ const auth = createCentaurAuth({
   apiUrl: process.env.VUE_APP_API_URL || 'http://localhost:5000',
   router,
   loginRoutePath: '/login',
-  defaultRedirectPath: '/welcome',
+  defaultRedirectPath: '/patients',
 });
 
 app.use(router);

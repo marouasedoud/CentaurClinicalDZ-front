@@ -1,15 +1,15 @@
 import type { RouteRecordRaw } from 'vue-router';
 import { LoginView } from '../views/LoginView';
-import { WelcomeView } from '../views/WelcomeView';
+import { PatientsView } from '../views/PatientsView';
 
 /**
- * Standard route definitions for authentication.
- * Other routes in the consumer application can simply add `meta: { requiresAuth: true }`.
+ * Standard route definitions for authentication and clinical views.
+ * Protected routes use `meta: { requiresAuth: true }`.
  */
 export const defaultAuthRoutes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/welcome',
+    redirect: '/patients',
   },
   {
     path: '/login',
@@ -17,16 +17,21 @@ export const defaultAuthRoutes: RouteRecordRaw[] = [
     component: LoginView,
     meta: {
       guestOnly: true,
-      title: 'Centaur Clinical - Login',
+      title: 'Centaur Clinical - Connexion',
     },
   },
   {
-    path: '/welcome',
-    name: 'Welcome',
-    component: WelcomeView,
+    path: '/patients',
+    name: 'Patients',
+    component: PatientsView,
     meta: {
       requiresAuth: true,
-      title: 'Centaur Clinical - Welcome',
+      title: 'Centaur Clinical - Liste des Patients',
     },
+  },
+  // Legacy /welcome route redirected to /patients
+  {
+    path: '/welcome',
+    redirect: '/patients',
   },
 ];

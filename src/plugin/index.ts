@@ -27,7 +27,7 @@ export class CentaurAuth {
       setupAuthGuard(options.router, {
         authService: this.authService,
         loginPath: options.loginRoutePath || '/login',
-        defaultRedirectPath: options.defaultRedirectPath || '/welcome',
+        defaultRedirectPath: options.defaultRedirectPath || '/patients',
       });
     }
   }

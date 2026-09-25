@@ -38,7 +38,8 @@ CentaurClinicalDZ-front/
 ├── src/
 │   ├── api/
 │   │   ├── client.ts          # Axios instance with Bearer interceptors
-│   │   └── auth.api.ts        # Typed API service for auth endpoints
+│   │   ├── auth.api.ts        # Typed API service for auth endpoints
+│   │   └── patient.api.ts     # Typed API service for patient endpoints (GET /api/patients)
 │   ├── auth/
 │   │   ├── auth.service.ts    # Core reactive authentication service
 │   │   ├── storage.service.ts # Token persistence abstraction (localStorage fallback)
@@ -48,10 +49,11 @@ CentaurClinicalDZ-front/
 │   │   └── Navbar.tsx         # JSX navbar with user status pill and logout button
 │   ├── views/
 │   │   ├── LoginView.tsx      # JSX Login page view
-│   │   └── WelcomeView.tsx    # JSX Welcome page view (user details, session tester)
+│   │   ├── PatientsView.tsx   # JSX Patients List page view (4 tabs: Général, Urgence, etc.)
+│   │   └── WelcomeView.tsx    # Re-export / alias of PatientsView
 │   ├── router/
 │   │   ├── guard.ts           # Centralized navigation guard (createAuthGuard)
-│   │   └── routes.ts          # Standard auth route definitions
+│   │   └── routes.ts          # Standard auth route definitions (/login, /patients)
 │   ├── plugin/
 │   │   └── index.ts           # Vue 3 plugin (CentaurAuth / createCentaurAuth)
 │   ├── styles/
@@ -142,7 +144,7 @@ The router guard automatically manages page access:
   - Accessible only if a valid JWT token exists.
   - Unauthenticated access redirects to `/login?redirect=<intended_path>`.
 - **Public / Guest routes** (`meta: { guestOnly: true }`):
-  - If an authenticated user navigates to `/login`, they are redirected to `/welcome`.
+  - If an authenticated user navigates to `/login`, they are redirected to `/patients`.
 
 ---
 

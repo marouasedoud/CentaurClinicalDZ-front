@@ -74,3 +74,60 @@ export interface CentaurAuthPluginOptions {
   defaultRedirectPath?: string;
   router?: Router;
 }
+
+/**
+ * Service departments supported by the patient API.
+ */
+export type PatientService = 'general' | 'urgence' | 'oncologie' | 'cardiologie';
+
+/**
+ * Common fields present on all patient records.
+ */
+export interface Patient {
+  id: string;
+  nom: string;
+  prenom: string;
+  date_hospitalisation: string;
+  service: PatientService;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Service-specific patient types.
+ */
+export type GeneralPatient = Patient;
+
+export interface UrgencePatient extends Patient {
+  heure_arrivee?: string;
+  niveau_triage?: number;
+  gravite_initiale?: string;
+}
+
+export interface OncologiePatient extends Patient {
+  type_tumeur?: string;
+  stade?: string;
+  traitement_en_cours?: string;
+}
+
+export interface CardiologiePatient extends Patient {
+  resultats_ecg?: string;
+  frequence_cardiaque_repos?: number;
+  tension_arterielle?: string;
+}
+
+export type PatientRow =
+  | GeneralPatient
+  | UrgencePatient
+  | OncologiePatient
+  | CardiologiePatient;
+
+/**
+ * Payload returned by GET /api/patients?service=<service>.
+ */
+export interface GetPatientsResponseData {
+  service: PatientService;
+  count: number;
+  patients: PatientRow[];
+}
+

@@ -12,6 +12,7 @@ export { TokenStorageService, defaultStorage } from './auth/storage.service';
 
 // API
 export { AuthApi, defaultAuthApi } from './api/auth.api';
+export { PatientApi, defaultPatientApi } from './api/patient.api';
 export { createApiClient, defaultApiClient } from './api/client';
 
 // Router & Route Protection
@@ -24,6 +25,7 @@ export { LoginForm } from './components/LoginForm';
 export { Navbar } from './components/Navbar';
 export { LoginView } from './views/LoginView';
 export { WelcomeView } from './views/WelcomeView';
+export { PatientsView } from './views/PatientsView';
 
 // TypeScript Types
 export type {
@@ -35,4 +37,12 @@ export type {
   MeResponseData,
   AuthState,
   CentaurAuthPluginOptions,
+  PatientService,
+  Patient,
+  GeneralPatient,
+  UrgencePatient,
+  OncologiePatient,
+  CardiologiePatient,
+  PatientRow,
+  GetPatientsResponseData,
 } from './types';
