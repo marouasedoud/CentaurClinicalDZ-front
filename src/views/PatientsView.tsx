@@ -1,20 +1,14 @@
 import { defineComponent, ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuth } from '../auth/use-auth';
-import { defaultPatientApi, PatientApi } from '../api/patient.api';
-import type {
-  PatientService,
-  PatientRow,
-  UrgencePatient,
-  OncologiePatient,
-  CardiologiePatient,
-} from '../types';
+import { PatientTable } from '../components/PatientTable';
+import { PatientServiceTab } from '../components/PatientServiceTab';
+import { usePatients } from '../composables/use-patients';
+import { defaultPatientApi } from '../api/patient.api';
+import type { PatientApi } from '../api/patient.api';
+import type { PatientService } from '../types';
 
 interface ServiceTab {
   id: PatientService;
   label: string;
-  icon: string;
-  badge?: string;
 }
 
 export const PatientsView = defineComponent({
@@ -26,119 +20,24 @@ export const PatientsView = defineComponent({
     },
   },
   setup(props) {
-    const { user, accessToken, isAuthenticated, logout } = useAuth();
-    const router = useRouter();
-
     const tabs: ServiceTab[] = [
-      { id: 'general', label: 'Général', icon: 'stethoscope' },
-      { id: 'urgence', label: 'Urgence', icon: 'alert' },
-      { id: 'oncologie', label: 'Oncologie', icon: 'ribbon' },
-      { id: 'cardiologie', label: 'Cardiologie', icon: 'heart' },
+      { id: 'general', label: 'Général' },
+      { id: 'urgence', label: 'Urgence' },
+      { id: 'oncologie', label: 'Oncologie' },
+      { id: 'cardiologie', label: 'Cardiologie' },
     ];
 
     const activeService = ref<PatientService>('general');
-    const patients = ref<PatientRow[]>([]);
-    const loading = ref<boolean>(false);
-    const error = ref<string | null>(null);
+    const { patients, loading, error, fetchPatients } = usePatients(props.patientApi);
 
-    // Fetch patients for the selected service
-    const fetchPatients = async (service: PatientService): Promise<void> => {
-      loading.value = true;
-      error.value = null;
+    const selectService = (service: PatientService): void => {
       activeService.value = service;
-
-      try {
-        // Access token is automatically attached by Axios client interceptor,
-        // and also explicitly passed for additional safety.
-        const res = await props.patientApi.getPatientsByService(
-          service,
-          accessToken.value || undefined
-        );
-
-        if (res && res.data && Array.isArray(res.data.patients)) {
-          patients.value = res.data.patients;
-        } else {
-          patients.value = [];
-        }
-      } catch (err: any) {
-        if (err?.response?.status === 401) {
-          error.value = 'Session expirée ou non autorisée. Veuillez vous reconnecter.';
-          await logout();
-          router.push('/login');
-        } else {
-          error.value =
-            err?.response?.data?.message ||
-            err?.message ||
-            'Erreur lors du chargement des patients.';
-        }
-        patients.value = [];
-      } finally {
-        loading.value = false;
-      }
+      void fetchPatients(service);
     };
 
     onMounted(() => {
-      fetchPatients('general');
+      void fetchPatients('general');
     });
-
-    const formatDate = (dateStr: string): string => {
-      if (!dateStr) return '—';
-      return dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
-    };
-
-    const getTriageBadge = (level?: number) => {
-      switch (level) {
-        case 1:
-          return <span class="triage-badge triage-1">Niveau 1 — Réanimation</span>;
-        case 2:
-          return <span class="triage-badge triage-2">Niveau 2 — Très urgent</span>;
-        case 3:
-          return <span class="triage-badge triage-3">Niveau 3 — Urgent</span>;
-        case 4:
-          return <span class="triage-badge triage-4">Niveau 4 — Moins urgent</span>;
-        case 5:
-          return <span class="triage-badge triage-5">Niveau 5 — Non urgent</span>;
-        default:
-          return <span class="triage-badge triage-5">{level ? `Niveau ${level}` : 'N/A'}</span>;
-      }
-    };
-
-    const renderTabIcon = (icon: string) => {
-      switch (icon) {
-        case 'stethoscope':
-          return (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-              <path d="M4.5 3v5a4.5 4.5 0 0 0 9 0V3" />
-              <path d="M9 12.5v4a4.5 4.5 0 0 0 9 0v-2.5" />
-              <circle cx="18" cy="14" r="3" />
-            </svg>
-          );
-        case 'alert':
-          return (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          );
-        case 'ribbon':
-          return (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-              <path d="M12 2a5 5 0 0 0-5 5c0 3.5 5 9 5 9s5-5.5 5-9a5 5 0 0 0-5-5z" />
-              <path d="M9 16l-3 6" />
-              <path d="M15 16l3 6" />
-            </svg>
-          );
-        case 'heart':
-          return (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-              <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l.77.78L12 20.66l7.65-7.65.77-.78a5.4 5.4 0 0 0 0-7.65z" />
-            </svg>
-          );
-        default:
-          return null;
-      }
-    };
 
     return () => (
       <div class="main-content patients-page-layout">
@@ -199,22 +98,15 @@ export const PatientsView = defineComponent({
                 {tabs.map((tab) => {
                   const isActive = activeService.value === tab.id;
                   return (
-                    <button
+                    <PatientServiceTab
                       key={tab.id}
-                      id={`tab-${tab.id}`}
-                      role="tab"
-                      aria-selected={isActive}
-                      class={`tab-button ${isActive ? 'tab-button-active' : ''}`}
-                      onClick={() => fetchPatients(tab.id)}
-                    >
-                      <span class="tab-icon">{renderTabIcon(tab.icon)}</span>
-                      <span class="tab-label">{tab.label}</span>
-                      {isActive && (
-                        <span class="tab-count-badge">
-                          {loading.value ? '...' : patients.value.length}
-                        </span>
-                      )}
-                    </button>
+                      service={tab.id}
+                      label={tab.label}
+                      active={isActive}
+                      count={patients.value.length}
+                      loading={loading.value}
+                      onSelect={selectService}
+                    />
                   );
                 })}
               </div>
@@ -246,173 +138,11 @@ export const PatientsView = defineComponent({
             </div>
           </div>
 
-          {/* Table Content */}
-          <div class="patients-table-wrapper">
-            {loading.value ? (
-              <div class="patients-loading-state">
-                <div class="spinner" style={{ width: '32px', height: '32px', borderWidth: '3px' }} />
-                <p>Chargement des dossiers médicaux ({activeService.value})...</p>
-              </div>
-            ) : patients.value.length === 0 ? (
-              <div class="patients-empty-state">
-                <div class="empty-icon-wrap">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="16" y1="13" x2="8" y2="13" />
-                    <line x1="16" y1="17" x2="8" y2="17" />
-                    <polyline points="10 9 9 9 8 9" />
-                  </svg>
-                </div>
-                <h3>Aucun patient trouvé</h3>
-                <p>
-                  {`Aucun patient n'est actuellement répertorié dans le service ${activeService.value}.`}
-                </p>
-              </div>
-            ) : (
-              <div class="table-responsive">
-                <table class="patients-table">
-                  <thead>
-                    <tr>
-                      {/* Common fields requested by user */}
-                      <th style={{ width: '180px' }}>Nom</th>
-                      <th style={{ width: '180px' }}>Prénom</th>
-                      <th style={{ width: '190px' }}>Date d’hospitalisation</th>
-
-                      {/* Service-specific fields */}
-                      {activeService.value === 'general' && (
-                        <th>Service</th>
-                      )}
-
-                      {activeService.value === 'urgence' && (
-                        <>
-                          <th style={{ width: '140px' }}>Heure d’arrivée</th>
-                          <th style={{ width: '220px' }}>Niveau de triage</th>
-                          <th>Gravité initiale</th>
-                        </>
-                      )}
-
-                      {activeService.value === 'oncologie' && (
-                        <>
-                          <th style={{ width: '220px' }}>Type de tumeur</th>
-                          <th style={{ width: '110px' }}>Stade</th>
-                          <th>Traitement en cours</th>
-                        </>
-                      )}
-
-                      {activeService.value === 'cardiologie' && (
-                        <>
-                          <th style={{ width: '220px' }}>Résultats ECG</th>
-                          <th style={{ width: '170px' }}>Fréq. cardiaque (repos)</th>
-                          <th style={{ width: '150px' }}>Tension artérielle</th>
-                        </>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {patients.value.map((patient) => {
-                      const urgence = patient as UrgencePatient;
-                      const onco = patient as OncologiePatient;
-                      const cardio = patient as CardiologiePatient;
-
-                      return (
-                        <tr key={patient.id} class="patient-row">
-                          {/* Common Fields */}
-                          <td class="patient-cell-nom">
-                            <span class="patient-name-primary">{patient.nom}</span>
-                          </td>
-                          <td class="patient-cell-prenom">
-                            <span class="patient-name-secondary">{patient.prenom}</span>
-                          </td>
-                          <td class="patient-cell-date">
-                            <div class="date-badge">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                                <line x1="16" y1="2" x2="16" y2="6" />
-                                <line x1="8" y1="2" x2="8" y2="6" />
-                                <line x1="3" y1="10" x2="21" y2="10" />
-                              </svg>
-                              <span>{formatDate(patient.date_hospitalisation)}</span>
-                            </div>
-                          </td>
-
-                          {/* Service-specific rows */}
-                          {activeService.value === 'general' && (
-                            <td>
-                              <span class="service-pill service-general">
-                                Médecine Générale
-                              </span>
-                            </td>
-                          )}
-
-                          {activeService.value === 'urgence' && (
-                            <>
-                              <td>
-                                <span class="time-badge">
-                                  {urgence.heure_arrivee || '—'}
-                                </span>
-                              </td>
-                              <td>{getTriageBadge(urgence.niveau_triage)}</td>
-                              <td>
-                                <span class="gravity-text">
-                                  {urgence.gravite_initiale || '—'}
-                                </span>
-                              </td>
-                            </>
-                          )}
-
-                          {activeService.value === 'oncologie' && (
-                            <>
-                              <td>
-                                <span class="tumor-type">
-                                  {onco.type_tumeur || '—'}
-                                </span>
-                              </td>
-                              <td>
-                                <span class="stade-badge">
-                                  {onco.stade ? `Stade ${onco.stade}` : '—'}
-                                </span>
-                              </td>
-                              <td>
-                                <span class="treatment-text">
-                                  {onco.traitement_en_cours || '—'}
-                                </span>
-                              </td>
-                            </>
-                          )}
-
-                          {activeService.value === 'cardiologie' && (
-                            <>
-                              <td>
-                                <span class="ecg-text">
-                                  {cardio.resultats_ecg || '—'}
-                                </span>
-                              </td>
-                              <td>
-                                <span class="heart-rate-badge">
-                                  <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                  </svg>
-                                  {cardio.frequence_cardiaque_repos
-                                    ? `${cardio.frequence_cardiaque_repos} bpm`
-                                    : '—'}
-                                </span>
-                              </td>
-                              <td>
-                                <span class="tension-badge">
-                                  {cardio.tension_arterielle || '—'}
-                                </span>
-                              </td>
-                            </>
-                          )}
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+          <PatientTable
+            patients={patients.value}
+            service={activeService.value}
+            loading={loading.value}
+          />
         </div>
       </div>
     );
