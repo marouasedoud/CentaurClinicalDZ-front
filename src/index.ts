@@ -25,6 +25,7 @@ export { LoginForm } from './components/LoginForm';
 export { Navbar } from './components/Navbar';
 export { LoginView } from './views/LoginView';
 export { PatientsView } from './views/PatientsView';
+export { CreatePatientView } from './views/CreatePatientView';
 
 // TypeScript Types
 export type {
@@ -43,5 +44,6 @@ export type {
   OncologiePatient,
   CardiologiePatient,
   PatientRow,
+  CreatePatientPayload,
   GetPatientsResponseData,
 } from './types';

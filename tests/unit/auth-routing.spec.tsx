@@ -79,6 +79,15 @@ describe('login and protected patient routing', () => {
         expect(wrapper.find('#username-input').exists()).toBe(true);
     });
 
+    it('protects the Create Patient page and preserves its redirect destination', async () => {
+        const { auth } = createAuthContext();
+        const { router, wrapper } = await mountApplication(auth, '/patients/create');
+
+        expect(router.currentRoute.value.path).toBe('/login');
+        expect(router.currentRoute.value.query.redirect).toBe('/patients/create');
+        expect(wrapper.find('#username-input').exists()).toBe(true);
+    });
+
     it.each(['invalid-token', 'expired-token'])('%s is cleared after a 401 and redirects to Login', async (token) => {
         const { auth, storage } = createAuthContext({ accessToken: token });
         const unauthorized = Object.assign(new Error('Unauthorized'), {

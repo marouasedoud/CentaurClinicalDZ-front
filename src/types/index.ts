@@ -106,7 +106,7 @@ export interface UrgencePatient extends Patient {
 
 export interface OncologiePatient extends Patient {
   type_tumeur?: string;
-  stade?: string;
+  stade?: string | number;
   traitement_en_cours?: string;
 }
 
@@ -121,6 +121,18 @@ export type PatientRow =
   | UrgencePatient
   | OncologiePatient
   | CardiologiePatient;
+
+export type CreatePatientPayload = Omit<Patient, 'id' | 'created_at' | 'updated_at'> & {
+  heure_arrivee?: string;
+  niveau_triage?: number;
+  gravite_initiale?: string;
+  type_tumeur?: string;
+  stade?: number;
+  traitement_en_cours?: string;
+  resultats_ecg?: string;
+  frequence_cardiaque_repos?: number;
+  tension_arterielle?: string;
+};
 
 /**
  * Payload returned by GET /api/patients?service=<service>.

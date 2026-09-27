@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router';
 import { LoginView } from '../views/LoginView';
 import { PatientsView } from '../views/PatientsView';
+import { CreatePatientView } from '../views/CreatePatientView';
 
 /**
  * Standard route definitions for authentication and clinical views.
@@ -27,6 +28,15 @@ export const defaultAuthRoutes: RouteRecordRaw[] = [
     meta: {
       requiresAuth: true,
       title: 'Centaur Clinical - Liste des Patients',
+    },
+  },
+  {
+    path: '/patients/create',
+    name: 'CreatePatient',
+    component: CreatePatientView,
+    meta: {
+      requiresAuth: true,
+      title: 'Centaur Clinical - Create Patient',
     },
   },
 ];

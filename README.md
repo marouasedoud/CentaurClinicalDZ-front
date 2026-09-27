@@ -65,11 +65,12 @@ The Vue CLI page entry is `example/main.tsx`; it installs the router and `Centau
 | `example/router.ts` | HTML5 history router built from `defaultAuthRoutes`; updates document titles after navigation. |
 | `src/views/LoginView.tsx` | Hosts `LoginForm` and redirects after login, honoring `?redirect=` when present. |
 | `src/components/LoginForm.tsx` | Credential inputs, required-field validation, password visibility, submission state, and error display. |
-| `src/components/Navbar.tsx` | Displays signed-in user or Guest state; logout clears auth and navigates to Login. |
+| `src/components/Navbar.tsx` | Main menu for patient list and creation plus signed-in user/Guest state and logout. |
 | `src/views/PatientsView.tsx` | Coordinates service selection, tabs, refresh, errors, and patient data loading. |
+| `src/views/CreatePatientView.tsx` | Service-specific patient creation form, validation, API submission, and feedback. |
 | `src/components/PatientServiceTab.tsx` | Patient service tab button, count/active state, and service-specific SVG icon. |
-| `src/components/PatientTable.tsx` | Loading/empty states and common and service-specific patient rows. |
-| `src/composables/use-patients.ts` | Fetches patients, tracks loading/errors, and logs out/navigates to Login after HTTP 401. |
+| `src/components/PatientTable.tsx` | Loading/empty states, common and service-specific patient rows, and row deletion actions. |
+| `src/composables/use-patients.ts` | Fetches and deletes patients, tracks loading/feedback, and logs out/navigates to Login after HTTP 401 on fetch. |
 | `src/api/` | Typed Axios wrappers for authentication and patients plus the shared HTTP client. |
 | `src/auth/` | `AuthService`, `TokenStorageService`, and `useAuth()` for auth state and token storage. |
 | `src/router/` | Route records and the authentication navigation guard. |
@@ -89,6 +90,7 @@ Components use Vue 3 `defineComponent` with TypeScript JSX rather than `.vue` si
 | `/` | Redirects to `/patients`. |
 | `/login` | Guest-only login page; authenticated users redirect to `/patients`. |
 | `/patients` | Protected patient list; unauthenticated users redirect to `/login`, preserving the requested destination in `?redirect=...`. |
+| `/patients/create` | Protected patient creation form; unauthenticated users redirect to `/login`. |
 
 `setupAuthGuard` installs the global navigation guard. Its `requiresAuth` check uses `AuthService.isAuthenticated`, initialized from whether an access token exists in storage; the guard itself does not validate a JWT with the backend. A rejected or expired token is detected when a protected API call returns HTTP 401, at which point `usePatients()` logs out and redirects to Login.
 
@@ -113,6 +115,9 @@ The Axios request interceptor adds `Authorization: Bearer <access_token>` when a
 | `POST` | `/api/auth/refresh` | Submit `{ refreshToken }` to refresh session credentials. |
 | `POST` | `/api/auth/logout` | Submit `{ refreshToken }` for server-side revocation. |
 | `GET` | `/api/patients?service=<service>` | Fetch patient records for one service. |
+| `POST` | `/api/patients` | Create a patient record for the selected service. Requires the Bearer access token. |
+| `DELETE` | `/api/patients/:id` | Delete the patient with the matching ID. Requires the Bearer access token. |
+| `PATCH` | `/api/patients/:id` | Update patient fields by ID. Requires the Bearer access token. |
 
 The development server does not configure an API proxy. For local development the backend must be reachable at `VUE_APP_API_URL` and permit the browser origin according to its CORS policy.
 
@@ -121,6 +126,14 @@ The development server does not configure an API proxy. For local development th
 `PatientsView` loads the `general` service on mount. Selecting Général, Urgence, Oncologie, or Cardiologie changes the active tab and requests that service's patient list. The active tab shows a count or loading indicator; the refresh button reloads the selected service.
 
 `PatientTable` displays common identity and hospitalization-date fields plus service-specific data: arrival time, triage level, and initial severity for Urgence; tumor type, stage, and treatment for Oncologie; ECG result, resting heart rate, and blood pressure for Cardiologie. ISO date-time values are displayed as `YYYY-MM-DD`. The supported service IDs are `general`, `urgence`, `oncologie`, and `cardiologie`.
+
+Each patient row has a trash-button action in the final Actions column. Clicking it asks for confirmation; cancelling leaves the patient unchanged and does not call the API. After a confirmed deletion, successful requests remove the row and show a success message at the top of the page, while failed requests keep the row and show an error message. Either message disappears automatically after five seconds.
+
+The pencil action edits one patient row at a time. Inputs are prefilled for the patient's common and service-specific fields; triage levels (1–5) and oncology stages (1–4) use the supported labeled options. Validate sends the draft through `PATCH /api/patients/:id`; successful requests update the row and show an "Updated successfully" message for five seconds. Failed requests show an error for five seconds and leave the row in edit mode. Cancel discards the draft without calling the API.
+
+## Create Patient Page
+
+The authenticated main menu links to `/patients/create`. Select General, Urgence, Oncologie, or Cardiologie to display the common fields and that service's fields. The form validates required values and service-specific limits before sending an authenticated `POST /api/patients`. Triage levels (1–5) and oncology stages (1–4) use the same labels and colors as the patients table. Successful creation clears the form and shows a message for five seconds; validation and API errors also show a temporary message. Cancel returns to the patient list without making a request.
 
 ## Plugin Integration
 

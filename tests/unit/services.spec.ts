@@ -23,6 +23,48 @@ describe('API services', () => {
         });
     });
 
+    it('creates a patient with the service payload and bearer token', async () => {
+        const response = { data: { status: 'success' as const, statusCode: 201 } };
+        const client = { post: jest.fn().mockResolvedValue(response) } as unknown as AxiosInstance;
+        const api = new PatientApi(client);
+        const patient = {
+            service: 'urgence' as const,
+            nom: 'Patient',
+            prenom: 'Test',
+            date_hospitalisation: '2026-09-27',
+            heure_arrivee: '09:30',
+            niveau_triage: 2,
+            gravite_initiale: 'Élevée',
+        };
+
+        await expect(api.createPatient(patient, 'access-token')).resolves.toBe(response.data);
+        expect(client.post).toHaveBeenCalledWith('/api/patients', patient, {
+            headers: { Authorization: 'Bearer access-token' },
+        });
+    });
+
+    it('deletes a patient by ID with a bearer token', async () => {
+        const client = { delete: jest.fn().mockResolvedValue({}) } as unknown as AxiosInstance;
+        const api = new PatientApi(client);
+
+        await expect(api.deletePatient('patient-1', 'access-token')).resolves.toBeUndefined();
+        expect(client.delete).toHaveBeenCalledWith('/api/patients/patient-1', {
+            headers: { Authorization: 'Bearer access-token' },
+        });
+    });
+
+    it('patches patient fields by ID with a bearer token', async () => {
+        const response = { data: { status: 'success' as const, statusCode: 200 } };
+        const client = { patch: jest.fn().mockResolvedValue(response) } as unknown as AxiosInstance;
+        const api = new PatientApi(client);
+        const updates = { nom: 'Updated', date_hospitalisation: '2026-09-27' };
+
+        await expect(api.updatePatient('patient-1', updates, 'access-token')).resolves.toBe(response.data);
+        expect(client.patch).toHaveBeenCalledWith('/api/patients/patient-1', updates, {
+            headers: { Authorization: 'Bearer access-token' },
+        });
+    });
+
     it('posts login credentials to the auth endpoint', async () => {
         const response = { data: { status: 'success', statusCode: 200 } };
         const client = { post: jest.fn().mockResolvedValue(response) } as unknown as AxiosInstance;

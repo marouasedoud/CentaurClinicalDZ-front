@@ -28,7 +28,20 @@ export const PatientsView = defineComponent({
     ];
 
     const activeService = ref<PatientService>('general');
-    const { patients, loading, error, fetchPatients } = usePatients(props.patientApi);
+    const {
+      patients,
+      loading,
+      error,
+      deleteSuccess,
+      deleteError,
+      deletingPatientId,
+      updateSuccess,
+      updateError,
+      updatingPatientId,
+      fetchPatients,
+      deletePatient,
+      updatePatient,
+    } = usePatients(props.patientApi);
 
     const selectService = (service: PatientService): void => {
       activeService.value = service;
@@ -42,6 +55,18 @@ export const PatientsView = defineComponent({
     return () => (
       <div class="main-content patients-page-layout">
         <div class="patients-container">
+          {deleteSuccess.value && (
+            <div class="alert alert-success" role="status">{deleteSuccess.value}</div>
+          )}
+          {deleteError.value && (
+            <div class="alert alert-danger" role="alert">{deleteError.value}</div>
+          )}
+          {updateSuccess.value && (
+            <div class="alert alert-success" role="status">{updateSuccess.value}</div>
+          )}
+          {updateError.value && (
+            <div class="alert alert-danger" role="alert">{updateError.value}</div>
+          )}
           {/* Header Banner */}
           <div class="patients-header-card">
             <div class="patients-header-top">
@@ -130,6 +155,10 @@ export const PatientsView = defineComponent({
             patients={patients.value}
             service={activeService.value}
             loading={loading.value}
+            deletePatient={deletePatient}
+            deletingPatientId={deletingPatientId.value}
+            updatePatient={updatePatient}
+            updatingPatientId={updatingPatientId.value}
           />
         </div>
       </div>
